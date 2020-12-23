@@ -5,6 +5,7 @@ import React from 'react';
 // import PaddleBall from './PaddleBall.jsx';
 import Paddle from './Paddle.jsx';
 import Brick from './Brick.jsx';
+import Ball from './Ball.jsx';
 
 class App extends React.Component {
   constructor(props) {
@@ -26,16 +27,22 @@ class App extends React.Component {
       brickX: 10,
       brickY: 20,
       bricks: [],
-      totalBricks: 40,
+      totalBricks: 60,
+      ballX: 400,
+      ballY: 685,
+      ballMove: false,
+      ballSpeedX: 0,
+      ballSpeedY: 0,
       canvas: '',
       movement: 0,
-      renderSpeed: 1000,
+      frames: 0,
     };
   }
 
   componentDidMount() {
     // console.log('mounting');
     this.update();
+    // setInterval(this.update, 1000);
     document.addEventListener('keydown', this.keyDown);
     document.addEventListener('keyup', this.keyUp);
     this.createBricks();
@@ -53,24 +60,33 @@ class App extends React.Component {
     const canvas = this.canvasRef.current;
     const ctx = canvas.getContext('2d');
 
-    const { x, movement, renderSpeed } = this.state;
+    const {
+      x, movement, ballX, ballY, ballSpeedX, ballSpeedY,
+    } = this.state;
 
     const newPosition = (x + movement);
+    const ballPositionX = (ballX + ballSpeedX);
+    const ballPositionY = (ballY + ballSpeedY);
+
+    ctx.fillStyle = 'lightblue';
+    ctx.fillRect(0, 0, 800, 800);
 
     this.setState({
       canvas: ctx,
       x: newPosition,
+      ballX: ballPositionX,
+      ballY: ballPositionY,
     });
 
-    ctx.fillStyle = 'lightblue';
-    ctx.fillRect(0, 0, 800, 800);
-    // setTimeout(this.update, renderSpeed);
+    // this.update();
+    // this.forceUpdate();
+    setTimeout(this.update, 10);
   }
 
   createBricks() {
     const { totalBricks } = this.state;
     let { brickX, brickY } = this.state;
-    const color = 'red';
+    let color = 'red';
     const bricks = [];
 
     for (let i = 0; i < totalBricks; i += 1) {
@@ -82,6 +98,14 @@ class App extends React.Component {
         brickX = 10;
         brickY += 40;
       }
+
+      if (brickY < 100) {
+        color = 'red';
+      } else if (brickY < 180) {
+        color = 'purple';
+      } else if (brickY < 260) {
+        color = 'blue';
+      }
     }
     // console.log(bricks);
 
@@ -91,41 +115,46 @@ class App extends React.Component {
   }
 
   keyDown(e) {
+    const { ballMove } = this.state;
     // console.log(e.keyCode);
     if (e.keyCode === 39) {
       this.setState({
         movement: 20,
-      }, () => {
-        this.update();
       });
     }
 
     if (e.keyCode === 37) {
       this.setState({
         movement: -20,
-      }, () => {
-        this.update();
+      });
+    }
+
+    if (e.keyCode === 32 && !ballMove) {
+      this.setState({
+        ballMove: true,
+        ballSpeedY: -10,
       });
     }
   }
 
-  keyUp() {
+  keyUp(e) {
     // console.log('keyUp');
-    this.setState({
-      movement: 0,
-    }, () => {
-      this.update();
-    });
+    if (e.keyCode === 39 || e.keyCode === 37) {
+      this.setState({
+        movement: 0,
+      });
+    }
   }
 
   render() {
     const {
-      width, height, x, y, w, h, canvas, bricks,
+      width, height, x, y, w, h, canvas, bricks, ballX, ballY, frames,
     } = this.state;
     return (
       <div>
         <h1>This is the App</h1>
         {/* <CanvasTest draw={this.draw} /> */}
+        <Ball x={ballX} y={ballY} canvas={canvas} frames={frames} />
         { bricks.map((brick, i) => (
           <Brick
             x={brick.x}
