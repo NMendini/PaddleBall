@@ -23,7 +23,7 @@ class App extends React.Component {
       x: 350,
       y: 700,
       w: 100,
-      h: 10,
+      h: 15,
       brickX: 10,
       brickY: 20,
       bricks: [],
@@ -33,9 +33,10 @@ class App extends React.Component {
       ballMove: false,
       ballSpeedX: 0,
       ballSpeedY: 0,
+      ballRadius: 15,
       canvas: '',
       movement: 0,
-      frames: 0,
+      renderSpeed: 10,
     };
   }
 
@@ -61,7 +62,7 @@ class App extends React.Component {
     const ctx = canvas.getContext('2d');
 
     const {
-      x, movement, ballX, ballY, ballSpeedX, ballSpeedY,
+      x, movement, ballX, ballY, ballSpeedX, ballSpeedY, renderSpeed,
     } = this.state;
 
     const newPosition = (x + movement);
@@ -78,9 +79,7 @@ class App extends React.Component {
       ballY: ballPositionY,
     });
 
-    // this.update();
-    // this.forceUpdate();
-    setTimeout(this.update, 10);
+    setTimeout(this.update, renderSpeed);
   }
 
   createBricks() {
@@ -107,7 +106,6 @@ class App extends React.Component {
         color = 'blue';
       }
     }
-    // console.log(bricks);
 
     this.setState({
       bricks,
@@ -119,13 +117,13 @@ class App extends React.Component {
     // console.log(e.keyCode);
     if (e.keyCode === 39) {
       this.setState({
-        movement: 20,
+        movement: 10,
       });
     }
 
     if (e.keyCode === 37) {
       this.setState({
-        movement: -20,
+        movement: -10,
       });
     }
 
@@ -148,20 +146,25 @@ class App extends React.Component {
 
   render() {
     const {
-      width, height, x, y, w, h, canvas, bricks, ballX, ballY, frames,
+      width, height, x, y, w, h, canvas, bricks, ballX, ballY, ballRadius,
     } = this.state;
     return (
       <div>
         <h1>This is the App</h1>
         {/* <CanvasTest draw={this.draw} /> */}
-        <Ball x={ballX} y={ballY} canvas={canvas} frames={frames} />
+        <Ball x={ballX} y={ballY} canvas={canvas} r={ballRadius} />
         { bricks.map((brick, i) => (
           <Brick
+            className="brick"
             x={brick.x}
             y={brick.y}
             color={brick.color}
+            ballX={ballX}
+            ballY={ballY}
+            ballRadius={ballRadius}
             canvas={canvas}
             key={i}
+            id={i}
           />
         )) }
         <Paddle x={x} y={y} w={w} h={h} canvas={canvas} />

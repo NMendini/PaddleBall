@@ -7,7 +7,6 @@ class Ball extends React.Component {
     this.update = this.update.bind(this);
 
     this.state = {
-      r: 15,
       start: 0,
       end: (2 * Math.PI),
     };
@@ -15,10 +14,9 @@ class Ball extends React.Component {
 
   update() {
     const {
-      x, y, canvas,
+      x, y, canvas, r,
     } = this.props;
-    const { r, start, end } = this.state;
-    console.log('Ball in Play', end);
+    const { start, end } = this.state;
 
     canvas.fillStyle = 'darkred';
     // canvas.fillRect(x, y, r, end);

@@ -9,17 +9,44 @@ class Brick extends React.Component {
     this.state = {
       w: 70,
       h: 30,
+      visible: true,
     };
   }
 
   update() {
-    const { w, h } = this.state;
+    const { w, h, visible } = this.state;
     const {
-      x, y, canvas, color,
+      x, y, canvas, color, ballX, ballY, ballRadius,
     } = this.props;
 
-    canvas.fillStyle = color;
-    canvas.fillRect(x, y, w, h);
+    if (visible) {
+      canvas.fillStyle = color;
+      canvas.fillRect(x, y, w, h);
+      canvas.shadowColor = 'rgba(125, 125, 125, 0.5)';
+      canvas.shadowOffsetY = 10;
+      canvas.shadowOffsetX = 10;
+      canvas.shadowBlur = 3;
+
+      // BRICK DIMENSIONS
+      const brickR = x + w;
+      const brickL = x;
+      const brickT = y;
+      const brickB = y + h;
+
+      // BALL DIMENSIONS
+      const ballR = ballX + ballRadius;
+      const ballL = ballX - ballRadius;
+      const ballT = ballY - ballRadius;
+      const ballB = ballY + ballRadius;
+
+      if ((brickR > ballL && brickL < ballL) || (brickL < ballR && brickR > ballR)) {
+        if ((brickB > ballT && brickT < ballT) || (brickT < ballB && brickB > ballB)) {
+          this.setState({
+            visible: false,
+          });
+        }
+      }
+    }
   }
 
   render() {
@@ -28,7 +55,7 @@ class Brick extends React.Component {
       this.update();
     }
     return (
-      <div></div>
+      <div />
     );
   }
 }
