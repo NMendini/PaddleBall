@@ -16,7 +16,7 @@ class Brick extends React.Component {
   update() {
     const { w, h, visible } = this.state;
     const {
-      x, y, canvas, color, ballX, ballY, ballRadius,
+      x, y, canvas, color, ballX, ballY, ballRadius, collide,
     } = this.props;
 
     if (visible) {
@@ -43,6 +43,8 @@ class Brick extends React.Component {
         if ((brickB > ballT && brickT < ballT) || (brickT < ballB && brickB > ballB)) {
           this.setState({
             visible: false,
+          }, () => {
+            collide();
           });
         }
       }

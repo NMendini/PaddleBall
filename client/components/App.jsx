@@ -16,6 +16,7 @@ class App extends React.Component {
     this.keyDown = this.keyDown.bind(this);
     this.keyUp = this.keyUp.bind(this);
     this.createBricks = this.createBricks.bind(this);
+    this.handleCollision = this.handleCollision.bind(this);
 
     this.state = {
       width: 800,
@@ -56,6 +57,17 @@ class App extends React.Component {
   //   ctx.arc(50, 100, 20 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
   //   ctx.fill();
   // }
+
+  handleCollision() {
+    const { ballSpeedY } = this.state;
+    const moveY = ballSpeedY;
+
+    this.setState({
+      ballSpeedY: -(moveY),
+    }, () => {
+      console.log(ballSpeedY);
+    });
+  }
 
   update() {
     const canvas = this.canvasRef.current;
@@ -144,6 +156,8 @@ class App extends React.Component {
     }
   }
 
+
+
   render() {
     const {
       width, height, x, y, w, h, canvas, bricks, ballX, ballY, ballRadius,
@@ -165,9 +179,20 @@ class App extends React.Component {
             canvas={canvas}
             key={i}
             id={i}
+            collide={this.handleCollision}
           />
         )) }
-        <Paddle x={x} y={y} w={w} h={h} canvas={canvas} />
+        <Paddle
+          x={x}
+          y={y}
+          w={w}
+          h={h}
+          ballX={ballX}
+          ballY={ballY}
+          ballRadius={ballRadius}
+          canvas={canvas}
+          collide={this.handleCollision}
+        />
         <canvas id="canvas" ref={this.canvasRef} height={height} width={width} />
       </div>
     );

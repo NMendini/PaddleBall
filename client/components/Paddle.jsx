@@ -9,22 +9,47 @@ class Paddle extends React.Component {
     this.update = this.update.bind(this);
 
     this.state = {
+      hit: false,
     };
   }
 
-  // componentDidMount() {
-  //   // console.log(canvas);
-
-  // }
-
   update() {
     const {
-      x, y, w, h, canvas,
+      x, y, w, h, canvas, ballX, ballY, ballRadius, collide,
     } = this.props;
+    const { hit } = this.state;
 
     canvas.fillStyle = 'black';
     canvas.fillRect(x, y, w, h);
 
+    const paddleR = x + w;
+    const paddleL = x;
+    const paddleT = y;
+    const paddleB = y + h;
+
+    // BALL DIMENSIONS
+    const ballR = ballX + ballRadius;
+    const ballL = ballX - ballRadius;
+    const ballT = ballY - ballRadius;
+    const ballB = ballY + ballRadius;
+
+    if (!hit) {
+      if ((paddleR > ballL && paddleL < ballL) || (paddleL < ballR && paddleR > ballR)) {
+        if ((paddleB > ballT && paddleT < ballT) || (paddleT < ballB && paddleB > ballB)) {
+          // hit = true;
+          collide();
+          this.setState({
+            hit: true,
+          }, () => {
+            setTimeout(() => {
+              this.setState({
+                hit: false,
+              });
+            }, 100);
+          });
+        }
+      }
+    }
     // console.log('Paddle running');
     // setTimeout(this.update, 10);
   }
