@@ -58,14 +58,16 @@ class App extends React.Component {
   //   ctx.fill();
   // }
 
-  handleCollision() {
-    const { ballSpeedY } = this.state;
+  handleCollision(x = 0) {
+    const { ballSpeedY, ballSpeedX } = this.state;
     const moveY = ballSpeedY;
+    const moveX = ballSpeedX + x;
 
     this.setState({
       ballSpeedY: -(moveY),
+      ballSpeedX: -(moveX),
     }, () => {
-      console.log(ballSpeedY);
+      // console.log(ballSpeedY);
     });
   }
 
@@ -160,7 +162,7 @@ class App extends React.Component {
 
   render() {
     const {
-      width, height, x, y, w, h, canvas, bricks, ballX, ballY, ballRadius,
+      width, height, x, y, w, h, canvas, bricks, ballX, ballY, ballRadius, ballSpeedX,
     } = this.state;
     return (
       <div>
@@ -190,6 +192,7 @@ class App extends React.Component {
           ballX={ballX}
           ballY={ballY}
           ballRadius={ballRadius}
+          ballSpeedX={ballSpeedX}
           canvas={canvas}
           collide={this.handleCollision}
         />

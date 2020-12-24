@@ -44,7 +44,15 @@ class Brick extends React.Component {
           this.setState({
             visible: false,
           }, () => {
-            collide();
+            let effect;
+            if (ballX > brickL && ballX < brickL + w / 2) {
+              console.log('negative')
+              effect = -2;
+            } else {
+              console.log('positive')
+              effect = 2;
+            }
+            collide(Math.random() * effect);
           });
         }
       }

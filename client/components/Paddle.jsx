@@ -4,7 +4,6 @@ import React from 'react';
 class Paddle extends React.Component {
   constructor(props) {
     super(props);
-    // this.canvasRef = React.createRef();
 
     this.update = this.update.bind(this);
 
@@ -15,7 +14,7 @@ class Paddle extends React.Component {
 
   update() {
     const {
-      x, y, w, h, canvas, ballX, ballY, ballRadius, collide,
+      x, y, w, h, canvas, ballX, ballY, ballRadius, ballSpeedX, collide,
     } = this.props;
     const { hit } = this.state;
 
@@ -37,7 +36,15 @@ class Paddle extends React.Component {
       if ((paddleR > ballL && paddleL < ballL) || (paddleL < ballR && paddleR > ballR)) {
         if ((paddleB > ballT && paddleT < ballT) || (paddleT < ballB && paddleB > ballB)) {
           // hit = true;
-          collide();
+          let effect;
+          if (ballX > paddleL && ballX < paddleL + w / 2) {
+            // console.log('negative')
+            effect = -2;
+          } else {
+            // console.log('positive')
+            effect = 2;
+          }
+          collide(Math.random() * effect);
           this.setState({
             hit: true,
           }, () => {
