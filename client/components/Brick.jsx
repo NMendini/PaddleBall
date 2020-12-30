@@ -46,13 +46,13 @@ class Brick extends React.Component {
           }, () => {
             let effect;
             if (ballX > brickL && ballX < brickL + w / 2) {
-              console.log('negative')
-              effect = -2;
+              // console.log('negative')
+              effect = -1;
             } else {
-              console.log('positive')
-              effect = 2;
+              // console.log('positive')
+              effect = 1;
             }
-            collide(Math.random() * effect);
+            collide(Math.random() * effect, 0, 'brick');
           });
         }
       }

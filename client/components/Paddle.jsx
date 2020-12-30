@@ -14,7 +14,7 @@ class Paddle extends React.Component {
 
   update() {
     const {
-      x, y, w, h, canvas, ballX, ballY, ballRadius, ballSpeedX, collide,
+      x, y, w, h, canvas, ballX, ballY, ballRadius, collide,
     } = this.props;
     const { hit } = this.state;
 
@@ -32,31 +32,46 @@ class Paddle extends React.Component {
     const ballT = ballY - ballRadius;
     const ballB = ballY + ballRadius;
 
-    if (!hit) {
-      if ((paddleR > ballL && paddleL < ballL) || (paddleL < ballR && paddleR > ballR)) {
-        if ((paddleB > ballT && paddleT < ballT) || (paddleT < ballB && paddleB > ballB)) {
-          // hit = true;
-          let effect;
-          if (ballX > paddleL && ballX < paddleL + w / 2) {
-            // console.log('negative')
-            effect = -2;
-          } else {
-            // console.log('positive')
-            effect = 2;
-          }
-          collide(Math.random() * effect);
-          this.setState({
-            hit: true,
-          }, () => {
-            setTimeout(() => {
-              this.setState({
-                hit: false,
-              });
-            }, 100);
-          });
+    if ((paddleR > ballL && paddleL < ballL) || (paddleL < ballR && paddleR > ballR)) {
+      if ((paddleB > ballT && paddleT < ballT) || (paddleT < ballB && paddleB > ballB)) {
+        // hit = true;
+        let effect;
+        if (ballX > paddleL && ballX < paddleL + w / 2) {
+          // console.log('negative')
+          effect = -1;
+        } else {
+          // console.log('positive')
+          effect = 1;
         }
+        collide(Math.random() * effect, 0, 'paddle');
       }
     }
+
+    // if (!hit) {
+    //   if ((paddleR > ballL && paddleL < ballL) || (paddleL < ballR && paddleR > ballR)) {
+    //     if ((paddleB > ballT && paddleT < ballT) || (paddleT < ballB && paddleB > ballB)) {
+    //       // hit = true;
+    //       let effect;
+    //       if (ballX > paddleL && ballX < paddleL + w / 2) {
+    //         // console.log('negative')
+    //         effect = -1;
+    //       } else {
+    //         // console.log('positive')
+    //         effect = 1;
+    //       }
+    //       collide(Math.random() * effect);
+    //       this.setState({
+    //         hit: true,
+    //       }, () => {
+    //         setTimeout(() => {
+    //           this.setState({
+    //             hit: false,
+    //           });
+    //         }, 100);
+    //       });
+    //     }
+    //   }
+    // }
     // console.log('Paddle running');
     // setTimeout(this.update, 10);
   }

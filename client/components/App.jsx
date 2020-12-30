@@ -38,6 +38,7 @@ class App extends React.Component {
       canvas: '',
       movement: 0,
       renderSpeed: 10,
+      hit: false,
     };
   }
 
@@ -58,17 +59,28 @@ class App extends React.Component {
   //   ctx.fill();
   // }
 
-  handleCollision(x = 0) {
-    const { ballSpeedY, ballSpeedX } = this.state;
-    const moveY = ballSpeedY;
-    const moveX = ballSpeedX + x;
+  handleCollision(x = 0, y = 0, source) {
+    const { ballSpeedY, ballSpeedX, hit } = this.state;
+    const moveY = ballSpeedY + y;
+    let moveX = ballSpeedX + x;
 
-    this.setState({
-      ballSpeedY: -(moveY),
-      ballSpeedX: -(moveX),
-    }, () => {
-      // console.log(ballSpeedY);
-    });
+    if (source === 'brick' || source === 'paddle') {
+      moveX = -(moveX);
+    }
+
+    if (!hit) {
+      this.setState({
+        hit: true,
+        ballSpeedY: -(moveY),
+        ballSpeedX: -(moveX),
+      }, () => {
+        setTimeout(() => {
+          this.setState({
+            hit: false,
+          });
+        }, 50);
+      });
+    }
   }
 
   update() {
@@ -76,12 +88,51 @@ class App extends React.Component {
     const ctx = canvas.getContext('2d');
 
     const {
-      x, movement, ballX, ballY, ballSpeedX, ballSpeedY, renderSpeed,
+      x, movement, ballX, ballY, ballSpeedX, ballSpeedY, renderSpeed, width,
     } = this.state;
 
     const newPosition = (x + movement);
     const ballPositionX = (ballX + ballSpeedX);
     const ballPositionY = (ballY + ballSpeedY);
+
+    const moveX = ballSpeedX;
+    const moveY = ballSpeedY;
+
+    if (ballX <= 0 || ballX >= width) {
+      this.handleCollision(0, moveY * -2);
+    }
+
+    if (ballY <= 0) {
+      this.handleCollision(moveX * -2);
+    }
+
+    // if (!hit) {
+    //   if (ballX <= 0 || ballX >= width) {
+    //     this.handleCollision(0, moveY * -2);
+    //     this.setState({
+    //       hit: true,
+    //     }, () => {
+    //       setTimeout(() => {
+    //         this.setState({
+    //           hit: false,
+    //         });
+    //       }, 100);
+    //     });
+    //   }
+
+    //   if (ballY <= 0) {
+    //     this.handleCollision(moveX * -2);
+    //     this.setState({
+    //       hit: true,
+    //     }, () => {
+    //       setTimeout(() => {
+    //         this.setState({
+    //           hit: false,
+    //         });
+    //       }, 100);
+    //     });
+    //   }
+    // }
 
     ctx.fillStyle = 'lightblue';
     ctx.fillRect(0, 0, 800, 800);
@@ -157,8 +208,6 @@ class App extends React.Component {
       });
     }
   }
-
-
 
   render() {
     const {
