@@ -78,7 +78,7 @@ class App extends React.Component {
           this.setState({
             hit: false,
           });
-        }, 50);
+        }, 70);
       });
     }
   }
@@ -88,51 +88,41 @@ class App extends React.Component {
     const ctx = canvas.getContext('2d');
 
     const {
-      x, movement, ballX, ballY, ballSpeedX, ballSpeedY, renderSpeed, width,
+      x, w, movement, ballY, ballSpeedX, ballSpeedY, renderSpeed, width, ballRadius, ballMove,
     } = this.state;
 
-    const newPosition = (x + movement);
+    let { ballX } = this.state;
+
+    // paddle position temp variable
+    let newPosition = (x + movement);
+
+    if (newPosition < 0) {
+      newPosition = 0;
+    }
+
+    if (newPosition + w > width) {
+      newPosition = width - w;
+    }
+
+    if (!ballMove) {
+      ballX = (newPosition + w / 2);
+    }
+
+    // ball position temp variable
     const ballPositionX = (ballX + ballSpeedX);
     const ballPositionY = (ballY + ballSpeedY);
 
+    // ball movement temp variable
     const moveX = ballSpeedX;
     const moveY = ballSpeedY;
 
-    if (ballX <= 0 || ballX >= width) {
+    if ((ballX - ballRadius) <= 0 || (ballX + ballRadius) >= width) {
       this.handleCollision(0, moveY * -2);
     }
 
-    if (ballY <= 0) {
+    if ((ballY - ballRadius) <= 0) {
       this.handleCollision(moveX * -2);
     }
-
-    // if (!hit) {
-    //   if (ballX <= 0 || ballX >= width) {
-    //     this.handleCollision(0, moveY * -2);
-    //     this.setState({
-    //       hit: true,
-    //     }, () => {
-    //       setTimeout(() => {
-    //         this.setState({
-    //           hit: false,
-    //         });
-    //       }, 100);
-    //     });
-    //   }
-
-    //   if (ballY <= 0) {
-    //     this.handleCollision(moveX * -2);
-    //     this.setState({
-    //       hit: true,
-    //     }, () => {
-    //       setTimeout(() => {
-    //         this.setState({
-    //           hit: false,
-    //         });
-    //       }, 100);
-    //     });
-    //   }
-    // }
 
     ctx.fillStyle = 'lightblue';
     ctx.fillRect(0, 0, 800, 800);

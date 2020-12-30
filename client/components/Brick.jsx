@@ -14,7 +14,10 @@ class Brick extends React.Component {
   }
 
   update() {
-    const { w, h, visible } = this.state;
+    const {
+      w, h, visible,
+    } = this.state;
+
     const {
       x, y, canvas, color, ballX, ballY, ballRadius, collide,
     } = this.props;
