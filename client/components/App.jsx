@@ -6,6 +6,7 @@ import React from 'react';
 import Paddle from './Paddle.jsx';
 import Brick from './Brick.jsx';
 import Ball from './Ball.jsx';
+import ScoreBoard from './ScoreBoard.jsx';
 
 class App extends React.Component {
   constructor(props) {
@@ -17,6 +18,7 @@ class App extends React.Component {
     this.keyUp = this.keyUp.bind(this);
     this.createBricks = this.createBricks.bind(this);
     this.handleCollision = this.handleCollision.bind(this);
+    this.handleScore = this.handleScore.bind(this);
 
     this.state = {
       width: 800,
@@ -28,7 +30,7 @@ class App extends React.Component {
       brickX: 10,
       brickY: 20,
       bricks: [],
-      totalBricks: 60,
+      totalBricks: 80,
       ballX: 400,
       ballY: 685,
       ballMove: false,
@@ -39,6 +41,7 @@ class App extends React.Component {
       movement: 0,
       renderSpeed: 10,
       hit: false,
+      score: 0,
     };
   }
 
@@ -78,9 +81,18 @@ class App extends React.Component {
           this.setState({
             hit: false,
           });
-        }, 70);
+        }, 80);
       });
     }
+  }
+
+  handleScore(points) {
+    const { score } = this.state;
+    const newScore = score + points;
+
+    this.setState({
+      score: newScore,
+    });
   }
 
   update() {
@@ -88,41 +100,50 @@ class App extends React.Component {
     const ctx = canvas.getContext('2d');
 
     const {
-      x, w, movement, ballY, ballSpeedX, ballSpeedY, renderSpeed, width, ballRadius, ballMove,
+      x, w, movement, ballSpeedX, ballSpeedY, renderSpeed, width, ballRadius, ballMove,
     } = this.state;
 
-    let { ballX } = this.state;
+    let { ballX, ballY } = this.state;
 
     // paddle position temp variable
     let newPosition = (x + movement);
 
+    // PADDLE BOUNDRIES
     if (newPosition < 0) {
       newPosition = 0;
     }
-
     if (newPosition + w > width) {
       newPosition = width - w;
     }
 
+    // ball start position
     if (!ballMove) {
       ballX = (newPosition + w / 2);
     }
-
-    // ball position temp variable
-    const ballPositionX = (ballX + ballSpeedX);
-    const ballPositionY = (ballY + ballSpeedY);
 
     // ball movement temp variable
     const moveX = ballSpeedX;
     const moveY = ballSpeedY;
 
-    if ((ballX - ballRadius) <= 0 || (ballX + ballRadius) >= width) {
+    // BALL COLLISION & BOUNDRIES
+    if ((ballX - ballRadius) <= 0) {
+      ballX = ballRadius;
+      this.handleCollision(0, moveY * -2);
+    }
+
+    if ((ballX + ballRadius) >= width) {
+      ballX = width - ballRadius;
       this.handleCollision(0, moveY * -2);
     }
 
     if ((ballY - ballRadius) <= 0) {
+      ballY = ballRadius;
       this.handleCollision(moveX * -2);
     }
+
+    // ball position temp variable
+    const ballPositionX = (ballX + ballSpeedX);
+    const ballPositionY = (ballY + ballSpeedY);
 
     ctx.fillStyle = 'lightblue';
     ctx.fillRect(0, 0, 800, 800);
@@ -141,10 +162,13 @@ class App extends React.Component {
     const { totalBricks } = this.state;
     let { brickX, brickY } = this.state;
     let color = 'red';
+    let points = 2000;
     const bricks = [];
 
     for (let i = 0; i < totalBricks; i += 1) {
-      const b = { x: brickX, y: brickY, color };
+      const b = {
+        x: brickX, y: brickY, color, points,
+      };
       bricks.push(b);
       brickX += 79;
 
@@ -155,10 +179,16 @@ class App extends React.Component {
 
       if (brickY < 100) {
         color = 'red';
+        points = 2000;
       } else if (brickY < 180) {
         color = 'purple';
+        points = 1000;
       } else if (brickY < 260) {
         color = 'blue';
+        points = 500;
+      } else if (brickY < 340) {
+        color = 'green';
+        points = 250;
       }
     }
 
@@ -201,11 +231,12 @@ class App extends React.Component {
 
   render() {
     const {
-      width, height, x, y, w, h, canvas, bricks, ballX, ballY, ballRadius, ballSpeedX,
+      width, height, x, y, w, h, canvas, bricks, ballX, ballY, ballRadius, ballSpeedX, score,
     } = this.state;
     return (
       <div>
         <h1>This is the App</h1>
+        <ScoreBoard score={score} />
         {/* <CanvasTest draw={this.draw} /> */}
         <Ball x={ballX} y={ballY} canvas={canvas} r={ballRadius} />
         { bricks.map((brick, i) => (
@@ -213,6 +244,7 @@ class App extends React.Component {
             className="brick"
             x={brick.x}
             y={brick.y}
+            points={brick.points}
             color={brick.color}
             ballX={ballX}
             ballY={ballY}
@@ -221,6 +253,7 @@ class App extends React.Component {
             key={i}
             id={i}
             collide={this.handleCollision}
+            scoreIncrease={this.handleScore}
           />
         )) }
         <Paddle

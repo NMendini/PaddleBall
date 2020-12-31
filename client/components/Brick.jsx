@@ -19,7 +19,7 @@ class Brick extends React.Component {
     } = this.state;
 
     const {
-      x, y, canvas, color, ballX, ballY, ballRadius, collide,
+      x, y, canvas, color, ballX, ballY, ballRadius, collide, points, scoreIncrease,
     } = this.props;
 
     if (visible) {
@@ -56,6 +56,7 @@ class Brick extends React.Component {
               effect = 1;
             }
             collide(Math.random() * effect, 0, 'brick');
+            scoreIncrease(points);
           });
         }
       }
