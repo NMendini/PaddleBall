@@ -25,7 +25,7 @@ class Brick extends React.Component {
     if (visible) {
       canvas.fillStyle = color;
       canvas.fillRect(x, y, w, h);
-      canvas.shadowColor = 'rgba(125, 125, 125, 0.5)';
+      canvas.shadowColor = 'rgba(75, 75, 75, 0.5)';
       canvas.shadowOffsetY = 10;
       canvas.shadowOffsetX = 10;
       canvas.shadowBlur = 3;

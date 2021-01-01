@@ -1,0 +1,71 @@
+body {
+  background-color: black;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-content: center;
+}
+
+@font-face {
+  font-family: 'Retro Gaming';
+  src: url(Retro\ Gaming.ttf);
+}
+
+#canvas {
+  /* margin: auto; */
+  /* display: flexbox; */
+  /* position: relative; */
+  /* justify-self: center; */
+  /* align-self: center; */
+}
+
+/* .brick {
+  background-color: chartreuse;
+
+} */
+
+/* SCOREBOARD */
+#score {
+  position: relative;
+  font-family: 'Retro Gaming';
+  font-size: 40px;
+  color: darkorange;
+}
+
+/* GAME NAME */
+#gameName {
+  font-family: 'Retro Gaming';
+  font-size: 50px;
+  color: magenta;
+  text-shadow: 4px 4px turquoise;
+}
+
+/* START SCREEN */
+.startContainer {
+  /* display: inline-block; */
+  margin: auto;
+  position: absolute;
+  font-family: 'Retro Gaming';
+  font-size: 30px;
+  text-align: center;
+  vertical-align: middle;
+  width: 600px;
+  height: 300px;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background-color: rgba(255, 248, 220, 0.5);
+  box-shadow: 10px 10px 3px rgba(75, 75, 75, 0.5);
+  animation:  startContainer 2s ease-in-out 0s infinite alternate;
+}
+
+#start {
+  position: relative;
+  display: inline-block;
+  text-shadow: 0 0 10px cornsilk;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+@keyframes startContainer {
+  from {background-color: rgba(255, 248, 220, 0.7);}
+  to {background-color: rgba(255, 248, 220, 0.2);}
+}

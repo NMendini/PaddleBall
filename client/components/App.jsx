@@ -7,10 +7,14 @@ import Paddle from './Paddle.jsx';
 import Brick from './Brick.jsx';
 import Ball from './Ball.jsx';
 import ScoreBoard from './ScoreBoard.jsx';
+import StartScreen from './StartScreen.jsx';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.currentScore = 0;
+    this.themeSound = null;
+    this.failSound = null;
     // this.draw = this.draw.bind(this);
     this.update = this.update.bind(this);
     this.canvasRef = React.createRef(null);
@@ -19,8 +23,10 @@ class App extends React.Component {
     this.createBricks = this.createBricks.bind(this);
     this.handleCollision = this.handleCollision.bind(this);
     this.handleScore = this.handleScore.bind(this);
+    this.CreateSound = this.CreateSound.bind(this);
 
     this.state = {
+      gameStart: false,
       width: 800,
       height: 800,
       x: 350,
@@ -42,16 +48,22 @@ class App extends React.Component {
       renderSpeed: 10,
       hit: false,
       score: 0,
+      theme: '../public/assets/PaddleBallTheme.ogg',
+      fail: '../public/assets/PaddleBallFail.ogg',
     };
   }
 
   componentDidMount() {
-    // console.log('mounting');
+    const { theme, fail } = this.state;
     this.update();
-    // setInterval(this.update, 1000);
     document.addEventListener('keydown', this.keyDown);
     document.addEventListener('keyup', this.keyUp);
     this.createBricks();
+    // window.score = 0;
+    this.themeSound = new this.CreateSound(theme);
+    this.failSound = new this.CreateSound(fail);
+
+    // setTimeout(this.themeSound.play, 800);
   }
 
   // draw(ctx, frameCount) {
@@ -63,50 +75,77 @@ class App extends React.Component {
   // }
 
   handleCollision(x = 0, y = 0, source) {
-    const { ballSpeedY, ballSpeedX, hit } = this.state;
-    const moveY = ballSpeedY + y;
-    let moveX = ballSpeedX + x;
+    const {
+      ballSpeedY, ballSpeedX, hit, gameStart, renderSpeed,
+    } = this.state;
+    if (gameStart) {
+      const moveY = ballSpeedY + y;
+      let moveX = ballSpeedX + x;
 
-    if (source === 'brick' || source === 'paddle') {
-      moveX = -(moveX);
-    }
+      if (source === 'brick' || source === 'paddle') {
+        moveX = -(moveX);
+      }
 
-    if (!hit) {
-      this.setState({
-        hit: true,
-        ballSpeedY: -(moveY),
-        ballSpeedX: -(moveX),
-      }, () => {
-        setTimeout(() => {
-          this.setState({
-            hit: false,
-          });
-        }, 80);
-      });
+      if (!hit) {
+        this.setState({
+          hit: true,
+          ballSpeedY: -(moveY),
+          ballSpeedX: -(moveX),
+        }, () => {
+          setTimeout(() => {
+            this.setState({
+              hit: false,
+            });
+          }, renderSpeed * 4);
+        });
+      }
     }
   }
 
   handleScore(points) {
-    const { score } = this.state;
-    const newScore = score + points;
+    this.currentScore += points;
 
     this.setState({
-      score: newScore,
+      score: this.currentScore,
     });
   }
 
+  // RENDERING AND BOUNDRIES
   update() {
     const canvas = this.canvasRef.current;
     const ctx = canvas.getContext('2d');
 
     const {
-      x, w, movement, ballSpeedX, ballSpeedY, renderSpeed, width, ballRadius, ballMove,
+      x, y, w, h, movement, renderSpeed, width, height, ballRadius, ballMove,
     } = this.state;
 
-    let { ballX, ballY } = this.state;
+    let {
+      ballX, ballY, ballSpeedX, ballSpeedY, gameStart,
+    } = this.state;
 
     // paddle position temp variable
     let newPosition = (x + movement);
+
+    // BALL OUT OF BOUNDS (End Round)
+    if (ballY - ballRadius >= height) {
+      this.themeSound.stop();
+      this.failSound.play();
+      newPosition = 350;
+      ballX = 400;
+      ballY = 685;
+      ballSpeedX = 0;
+      ballSpeedY = 0;
+      gameStart = false;
+
+      this.setState({
+        gameStart: false,
+        ballMove: false,
+        ballSpeedX: 0,
+        ballSpeedY: 0,
+        ballX: 400,
+        ballY: 685,
+      });
+    }
 
     // PADDLE BOUNDRIES
     if (newPosition < 0) {
@@ -125,27 +164,64 @@ class App extends React.Component {
     const moveX = ballSpeedX;
     const moveY = ballSpeedY;
 
-    // BALL COLLISION & BOUNDRIES
-    if ((ballX - ballRadius) <= 0) {
-      ballX = ballRadius;
-      this.handleCollision(0, moveY * -2);
-    }
+    // during game
+    if (gameStart) {
+      // PADDLE DIMENSIONS
+      const paddleR = x + w;
+      const paddleL = x;
+      const paddleT = y;
+      const paddleB = y + h;
 
-    if ((ballX + ballRadius) >= width) {
-      ballX = width - ballRadius;
-      this.handleCollision(0, moveY * -2);
-    }
+      // BALL DIMENSIONS
+      const ballR = ballX + ballRadius;
+      const ballL = ballX - ballRadius;
+      const ballT = ballY - ballRadius;
+      const ballB = ballY + ballRadius;
 
-    if ((ballY - ballRadius) <= 0) {
-      ballY = ballRadius;
-      this.handleCollision(moveX * -2);
+      // BALL COLLISION & BOUNDRIES
+      if ((ballL) <= 0) {
+        ballX = ballRadius;
+        this.handleCollision(0, moveY * -2);
+      }
+
+      if ((ballR) >= width) {
+        ballX = width - ballRadius;
+        this.handleCollision(0, moveY * -2);
+      }
+
+      if ((ballT) <= 0) {
+        ballY = ballRadius;
+        this.handleCollision(moveX * -2);
+      }
+
+      // if (ballL >= paddleL && ballR <= paddleR) {
+      //   if (ballB > paddleT && ballT < paddleT + h / 4) {
+      //     ballY = paddleT - ballRadius;
+      //   }
+      // }
+
+      // BALL & PADDLE COLLISION
+      if ((paddleR > ballL && paddleL < ballL) || (paddleL < ballR && paddleR > ballR)) {
+        if (paddleT < ballB && paddleB > ballY) {
+          // hit = true;
+          let effect;
+          if (ballX > paddleL && ballX < paddleL + w / 2) {
+            // console.log('negative')
+            effect = -1;
+          } else {
+            // console.log('positive')
+            effect = 1;
+          }
+          this.handleCollision(Math.random() * effect, 0, 'paddle');
+        }
+      }
     }
 
     // ball position temp variable
     const ballPositionX = (ballX + ballSpeedX);
     const ballPositionY = (ballY + ballSpeedY);
 
-    ctx.fillStyle = 'lightblue';
+    ctx.fillStyle = 'steelblue';
     ctx.fillRect(0, 0, 800, 800);
 
     this.setState({
@@ -161,7 +237,7 @@ class App extends React.Component {
   createBricks() {
     const { totalBricks } = this.state;
     let { brickX, brickY } = this.state;
-    let color = 'red';
+    let color = 'crimson';
     let points = 2000;
     const bricks = [];
 
@@ -178,16 +254,16 @@ class App extends React.Component {
       }
 
       if (brickY < 100) {
-        color = 'red';
+        color = 'crimson';
         points = 2000;
       } else if (brickY < 180) {
-        color = 'purple';
+        color = 'orange';
         points = 1000;
       } else if (brickY < 260) {
-        color = 'blue';
+        color = 'green';
         points = 500;
       } else if (brickY < 340) {
-        color = 'green';
+        color = 'blue';
         points = 250;
       }
     }
@@ -195,6 +271,22 @@ class App extends React.Component {
     this.setState({
       bricks,
     });
+  }
+
+  CreateSound(source) {
+    this.sound = document.createElement('audio');
+    this.sound.src = source;
+    this.sound.volume = 0.1;
+    this.sound.setAttribute('preload', 'auto');
+    this.sound.setAttribute('controls', 'none');
+    this.sound.style.display = 'none';
+    this.play = () => {
+      this.sound.play();
+    };
+    this.stop = () => {
+      this.sound.pause();
+      this.sound.currentTime = 0;
+    };
   }
 
   keyDown(e) {
@@ -213,7 +305,9 @@ class App extends React.Component {
     }
 
     if (e.keyCode === 32 && !ballMove) {
+      this.themeSound.play();
       this.setState({
+        gameStart: true,
         ballMove: true,
         ballSpeedY: -10,
       });
@@ -231,12 +325,14 @@ class App extends React.Component {
 
   render() {
     const {
-      width, height, x, y, w, h, canvas, bricks, ballX, ballY, ballRadius, ballSpeedX, score,
+      width, height, x, y, w, h, canvas, bricks, ballX, ballY,
+      ballRadius, ballSpeedX, ballMove, score,
     } = this.state;
     return (
       <div>
-        <h1>This is the App</h1>
+        <h1 id="gameName">PADDLEBALL</h1>
         <ScoreBoard score={score} />
+        <StartScreen start={ballMove} />
         {/* <CanvasTest draw={this.draw} /> */}
         <Ball x={ballX} y={ballY} canvas={canvas} r={ballRadius} />
         { bricks.map((brick, i) => (
