@@ -11,19 +11,6 @@ body {
   src: url(Retro\ Gaming.ttf);
 }
 
-#canvas {
-  /* margin: auto; */
-  /* display: flexbox; */
-  /* position: relative; */
-  /* justify-self: center; */
-  /* align-self: center; */
-}
-
-/* .brick {
-  background-color: chartreuse;
-
-} */
-
 /* SCOREBOARD */
 #score {
   position: relative;

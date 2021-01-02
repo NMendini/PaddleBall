@@ -15,6 +15,10 @@ class App extends React.Component {
     this.currentScore = 0;
     this.themeSound = null;
     this.failSound = null;
+    this.paddleHit = null;
+    this.brickHit = [];
+    this.wallHit = null;
+    this.brickCount = 0;
     // this.draw = this.draw.bind(this);
     this.update = this.update.bind(this);
     this.canvasRef = React.createRef(null);
@@ -48,13 +52,19 @@ class App extends React.Component {
       renderSpeed: 10,
       hit: false,
       score: 0,
-      theme: '../public/assets/PaddleBallTheme.ogg',
-      fail: '../public/assets/PaddleBallFail.ogg',
+      theme: '../assets/PaddleBallTheme.ogg',
+      fail: '../assets/PaddleBallFail.ogg',
+      paddleHit: '../assets/PaddleBallPaddleHit.ogg',
+      brickHits: ['../assets/PaddleBallBrickHit01.ogg', '../assets/PaddleBallBrickHit02.ogg', '../assets/PaddleBallBrickHit03.ogg', '../assets/PaddleBallBrickHit04.ogg'],
+      wallHit: '../assets/PaddleBallWallHit.ogg',
     };
   }
 
   componentDidMount() {
-    const { theme, fail } = this.state;
+    const {
+      theme, fail, paddleHit, brickHits, wallHit,
+    } = this.state;
+
     this.update();
     document.addEventListener('keydown', this.keyDown);
     document.addEventListener('keyup', this.keyUp);
@@ -62,6 +72,12 @@ class App extends React.Component {
     // window.score = 0;
     this.themeSound = new this.CreateSound(theme);
     this.failSound = new this.CreateSound(fail);
+    this.paddleHit = new this.CreateSound(paddleHit);
+    this.wallHit = new this.CreateSound(wallHit);
+
+    brickHits.forEach((item) => {
+      this.brickHit.push(new this.CreateSound(item));
+    });
 
     // setTimeout(this.themeSound.play, 800);
   }
@@ -82,11 +98,25 @@ class App extends React.Component {
       const moveY = ballSpeedY + y;
       let moveX = ballSpeedX + x;
 
-      if (source === 'brick' || source === 'paddle') {
-        moveX = -(moveX);
-      }
-
       if (!hit) {
+        if (source === 'brick') {
+          const randomIndex = Math.floor((Math.random() * this.brickHit.length - 1) + 1);
+          // this.brickHit[randomIndex].stop();
+          this.brickHit[randomIndex].play();
+          moveX = -(moveX);
+        }
+
+        if (source === 'paddle') {
+          // this.paddleHit.stop();
+          this.paddleHit.play();
+          moveX = -(moveX);
+        }
+
+        if (source === 'wall') {
+          // this.wallHit.stop();
+          this.wallHit.play();
+        }
+
         this.setState({
           hit: true,
           ballSpeedY: -(moveY),
@@ -104,6 +134,7 @@ class App extends React.Component {
 
   handleScore(points) {
     this.currentScore += points;
+    this.brickCount += 1;
 
     this.setState({
       score: this.currentScore,
@@ -116,7 +147,7 @@ class App extends React.Component {
     const ctx = canvas.getContext('2d');
 
     const {
-      x, y, w, h, movement, renderSpeed, width, height, ballRadius, ballMove,
+      x, y, w, h, movement, renderSpeed, width, height, ballRadius, ballMove, totalBricks,
     } = this.state;
 
     let {
@@ -126,10 +157,9 @@ class App extends React.Component {
     // paddle position temp variable
     let newPosition = (x + movement);
 
-    // BALL OUT OF BOUNDS (End Round)
-    if (ballY - ballRadius >= height) {
-      this.themeSound.stop();
-      this.failSound.play();
+    // RESET
+    const reset = () => {
+      this.brickCount = 0;
       newPosition = 350;
       ballX = 400;
       ballY = 685;
@@ -145,6 +175,32 @@ class App extends React.Component {
         ballX: 400,
         ballY: 685,
       });
+
+      this.setState({
+        totalBricks: 0,
+      }, () => {
+        this.createBricks();
+        this.setState({
+          totalBricks,
+        }, () => {
+          this.createBricks();
+        });
+      });
+    };
+
+    // BALL OUT OF BOUNDS (End Round)
+    if (ballY - ballRadius >= height) {
+      this.themeSound.stop();
+      this.failSound.play();
+      this.currentScore = 0;
+      this.setState({
+        score: 0,
+      });
+      reset();
+    }
+
+    if (this.brickCount >= totalBricks) {
+      reset();
     }
 
     // PADDLE BOUNDRIES
@@ -181,24 +237,24 @@ class App extends React.Component {
       // BALL COLLISION & BOUNDRIES
       if ((ballL) <= 0) {
         ballX = ballRadius;
-        this.handleCollision(0, moveY * -2);
+        this.handleCollision(0, moveY * -2, 'wall');
       }
 
       if ((ballR) >= width) {
         ballX = width - ballRadius;
-        this.handleCollision(0, moveY * -2);
+        this.handleCollision(0, moveY * -2, 'wall');
       }
 
       if ((ballT) <= 0) {
         ballY = ballRadius;
-        this.handleCollision(moveX * -2);
+        this.handleCollision(moveX * -2, 0, 'wall');
       }
 
-      // if (ballL >= paddleL && ballR <= paddleR) {
-      //   if (ballB > paddleT && ballT < paddleT + h / 4) {
-      //     ballY = paddleT - ballRadius;
-      //   }
-      // }
+      if (ballL >= paddleL && ballR <= paddleR) {
+        if (ballB > paddleT && ballT < paddleT + h / 4) {
+          ballY = paddleT - ballRadius;
+        }
+      }
 
       // BALL & PADDLE COLLISION
       if ((paddleR > ballL && paddleL < ballL) || (paddleL < ballR && paddleR > ballR)) {
@@ -207,10 +263,10 @@ class App extends React.Component {
           let effect;
           if (ballX > paddleL && ballX < paddleL + w / 2) {
             // console.log('negative')
-            effect = -1;
+            effect = -2;
           } else {
             // console.log('positive')
-            effect = 1;
+            effect = 2;
           }
           this.handleCollision(Math.random() * effect, 0, 'paddle');
         }
@@ -281,6 +337,7 @@ class App extends React.Component {
     this.sound.setAttribute('controls', 'none');
     this.sound.style.display = 'none';
     this.play = () => {
+      this.sound.currentTime = 0;
       this.sound.play();
     };
     this.stop = () => {
