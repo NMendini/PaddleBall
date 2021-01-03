@@ -48,6 +48,22 @@ body {
   z-index: 10;
 }
 
+#initialsContainer {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.selected {
+  opacity: 1;
+  animation: selected 700ms ease-in-out 0s infinite alternate;
+}
+
+@keyframes selected {
+  from {opacity: 1;}
+  to {opacity: 0.4;}
+}
+
 /* #initialsHeader {
 
 } */

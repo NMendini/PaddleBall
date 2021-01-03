@@ -35,8 +35,8 @@ class App extends React.Component {
       gameStart: false,
       initialBoard: false,
       letter1: 1,
-      letter2: 0,
-      letter3: 0,
+      letter2: 1,
+      letter3: 1,
       selectedLetter: 1,
       width: 800,
       height: 800,
@@ -209,7 +209,7 @@ class App extends React.Component {
 
       this.themeSound.stop();
       this.failSound.play();
-
+      totalBricks = 60;
       // HI SCORE CHECK
       if (this.currentScore > hiScores[2].score) {
         this.setState({
@@ -220,7 +220,6 @@ class App extends React.Component {
         });
       } else {
         this.currentScore = 0;
-        totalBricks = 60;
         this.setState({
           score: 0,
         }, () => {
@@ -501,7 +500,8 @@ class App extends React.Component {
   render() {
     const {
       width, height, x, y, w, h, canvas, bricks, ballX, ballY,
-      ballRadius, ballSpeedX, ballMove, score, hiScores, letter1, letter2, letter3, initialBoard,
+      ballRadius, ballSpeedX, ballMove, score, hiScores,
+      letter1, letter2, letter3, initialBoard, selectedLetter,
     } = this.state;
     return (
       <div>
@@ -511,6 +511,7 @@ class App extends React.Component {
           letter2={letter2}
           letter3={letter3}
           enter={initialBoard}
+          selected={`letter${selectedLetter}`}
         />
         <HiScore hiScores={hiScores} />
         <ScoreBoard score={score} />
