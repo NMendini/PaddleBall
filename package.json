@@ -1,0 +1,51 @@
+{
+  "name": "PaddleBall",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/app.js",
+    "start:dev": "nodemon server/app.js",
+    "react:dev": "webpack --mode=development -d eval-source-map --watch",
+    "build": "webpack --mode=production -d source-map"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NMendini/PaddleBall.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NMendini/PaddleBall/issues"
+  },
+  "homepage": "https://github.com/NMendini/PaddleBall#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@babel/preset-react": "^7.12.10",
+    "babel-loader": "^8.2.2",
+    "css-loader": "^5.0.1",
+    "eslint": "^7.16.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "nodemon": "^2.0.6",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.11.0",
+    "webpack-cli": "^4.2.0"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "body-parser": "^1.19.0",
+    "cross-var": "^1.1.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  }
+}
