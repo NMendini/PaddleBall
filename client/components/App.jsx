@@ -8,6 +8,8 @@ import Brick from './Brick.jsx';
 import Ball from './Ball.jsx';
 import ScoreBoard from './ScoreBoard.jsx';
 import StartScreen from './StartScreen.jsx';
+import HiScore from './HiScore.jsx';
+import EnterInitials from './EnterInitials.jsx';
 
 class App extends React.Component {
   constructor(props) {
@@ -31,6 +33,11 @@ class App extends React.Component {
 
     this.state = {
       gameStart: false,
+      initialBoard: false,
+      letter1: 1,
+      letter2: 0,
+      letter3: 0,
+      selectedLetter: 1,
       width: 800,
       height: 800,
       x: 350,
@@ -40,7 +47,7 @@ class App extends React.Component {
       brickX: 10,
       brickY: 20,
       bricks: [],
-      totalBricks: 80,
+      totalBricks: 60,
       ballX: 400,
       ballY: 685,
       ballMove: false,
@@ -52,6 +59,14 @@ class App extends React.Component {
       renderSpeed: 10,
       hit: false,
       score: 0,
+      hiScores: [
+        { initials: 'PAD', score: 50000 },
+        { initials: 'DLE', score: 30000 },
+        { initials: 'BAL', score: 10000 },
+      ],
+      alphaNumerics: [
+        ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 1, 2, 3, 4, 5, 6, 7, 8, 9, 0,
+      ],
       theme: '../assets/PaddleBallTheme.ogg',
       fail: '../assets/PaddleBallFail.ogg',
       paddleHit: '../assets/PaddleBallPaddleHit.ogg',
@@ -147,11 +162,11 @@ class App extends React.Component {
     const ctx = canvas.getContext('2d');
 
     const {
-      x, y, w, h, movement, renderSpeed, width, height, ballRadius, ballMove, totalBricks,
+      x, y, w, h, movement, renderSpeed, width, height, ballRadius, ballMove,
     } = this.state;
 
     let {
-      ballX, ballY, ballSpeedX, ballSpeedY, gameStart,
+      ballX, ballY, ballSpeedX, ballSpeedY, gameStart, totalBricks,
     } = this.state;
 
     // paddle position temp variable
@@ -190,17 +205,42 @@ class App extends React.Component {
 
     // BALL OUT OF BOUNDS (End Round)
     if (ballY - ballRadius >= height) {
+      const { hiScores } = this.state;
+
       this.themeSound.stop();
       this.failSound.play();
-      this.currentScore = 0;
-      this.setState({
-        score: 0,
-      });
-      reset();
+
+      // HI SCORE CHECK
+      if (this.currentScore > hiScores[2].score) {
+        this.setState({
+          initialBoard: true,
+          score: 0,
+        }, () => {
+          reset();
+        });
+      } else {
+        this.currentScore = 0;
+        totalBricks = 60;
+        this.setState({
+          score: 0,
+        }, () => {
+          reset();
+        });
+      }
     }
 
+    // WIN ROUND
     if (this.brickCount >= totalBricks) {
-      reset();
+      if (totalBricks <= 120) {
+        totalBricks += 10;
+        this.setState({
+          totalBricks,
+        }, () => {
+          reset();
+        });
+      } else {
+        reset();
+      }
     }
 
     // PADDLE BOUNDRIES
@@ -321,6 +361,12 @@ class App extends React.Component {
       } else if (brickY < 340) {
         color = 'blue';
         points = 250;
+      } else if (brickY < 420) {
+        color = 'indigo';
+        points = 200;
+      } else if (brickY < 500) {
+        color = 'gold';
+        points = 75;
       }
     }
 
@@ -347,27 +393,99 @@ class App extends React.Component {
   }
 
   keyDown(e) {
-    const { ballMove } = this.state;
-    // console.log(e.keyCode);
-    if (e.keyCode === 39) {
-      this.setState({
-        movement: 10,
-      });
-    }
+    e.preventDefault();
+    const {
+      ballMove, initialBoard, selectedLetter, letter1, letter2, letter3, alphaNumerics,
+    } = this.state;
 
-    if (e.keyCode === 37) {
-      this.setState({
-        movement: -10,
-      });
-    }
+    let { hiScores } = this.state;
 
-    if (e.keyCode === 32 && !ballMove) {
-      this.themeSound.play();
-      this.setState({
-        gameStart: true,
-        ballMove: true,
-        ballSpeedY: -10,
-      });
+    console.log(e.keyCode);
+
+    if (!initialBoard) {
+      if (e.keyCode === 39) {
+        this.setState({
+          movement: 10,
+        });
+      }
+
+      if (e.keyCode === 37) {
+        this.setState({
+          movement: -10,
+        });
+      }
+
+      if (e.keyCode === 32 && !ballMove) {
+        this.themeSound.play();
+        this.setState({
+          gameStart: true,
+          ballMove: true,
+          ballSpeedY: -10,
+        });
+      }
+    } else {
+      // ENTER INITIALS
+      if (e.keyCode === 38) {
+        const selection = {};
+        let previousIndex = this.state[`letter${selectedLetter}`];
+        previousIndex += 1;
+
+        if (previousIndex > 36) {
+          previousIndex = 0;
+        }
+        selection[`letter${selectedLetter}`] = previousIndex;
+        this.setState(selection);
+      }
+
+      if (e.keyCode === 40) {
+        const selection = {};
+        let previousIndex = this.state[`letter${selectedLetter}`];
+        previousIndex -= 1;
+
+        if (previousIndex < 0) {
+          previousIndex = 36;
+        }
+
+        selection[`letter${selectedLetter}`] = previousIndex;
+        this.setState(selection);
+      }
+
+      if (e.keyCode === 39) {
+        let nextLetter = selectedLetter + 1;
+        if (nextLetter > 3) {
+          nextLetter = 1;
+        }
+        this.setState({
+          selectedLetter: nextLetter,
+        });
+      }
+
+      if (e.keyCode === 37) {
+        let previousLetter = selectedLetter - 1;
+        if (previousLetter < 1) {
+          previousLetter = 3;
+        }
+        this.setState({
+          selectedLetter: previousLetter,
+        });
+      }
+
+      if (e.keyCode === 13) {
+        const initials = `${alphaNumerics[letter1]}${alphaNumerics[letter2]}${alphaNumerics[letter3]}`;
+
+        hiScores[2] = { initials, score: this.currentScore };
+        hiScores = hiScores.sort((a, b) => b.score - a.score);
+
+        this.setState({
+          hiScores,
+        });
+        this.setState({
+          hiScores,
+          initialBoard: false,
+        }, () => {
+          this.currentScore = 0;
+        });
+      }
     }
   }
 
@@ -383,11 +501,18 @@ class App extends React.Component {
   render() {
     const {
       width, height, x, y, w, h, canvas, bricks, ballX, ballY,
-      ballRadius, ballSpeedX, ballMove, score,
+      ballRadius, ballSpeedX, ballMove, score, hiScores, letter1, letter2, letter3, initialBoard,
     } = this.state;
     return (
       <div>
         <h1 id="gameName">PADDLEBALL</h1>
+        <EnterInitials
+          letter1={letter1}
+          letter2={letter2}
+          letter3={letter3}
+          enter={initialBoard}
+        />
+        <HiScore hiScores={hiScores} />
         <ScoreBoard score={score} />
         <StartScreen start={ballMove} />
         {/* <CanvasTest draw={this.draw} /> */}
