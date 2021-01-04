@@ -6,7 +6,7 @@ import HiScoreEntry from './HiScoreEntry.jsx';
 class HiScore extends React.Component {
   constructor(props) {
     super(props);
-    this.update = this.update.bind(this);
+    // this.update = this.update.bind(this);
 
     this.state = {
       scores: [
@@ -17,22 +17,22 @@ class HiScore extends React.Component {
     };
   }
 
-  componentDidMount() {
-    const { hiScores } = this.props;
-    this.setState({
-      scores: hiScores,
-    });
-  }
+  // componentDidMount() {
+  //   const { hiScores } = this.props;
+  //   this.setState({
+  //     scores: hiScores,
+  //   });
+  // }
 
-  update(scores) {
-    // const { hiScores } = this.props;
-    this.setState({
-      scores,
-    });
-  }
+  // update(scores) {
+  //   // const { hiScores } = this.props;
+  //   this.setState({
+  //     scores,
+  //   });
+  // }
 
   render() {
-    const { scores } = this.state;
+    const { hiScores } = this.props;
     // const { hiScores } = this.props;
 
     // if (hiScores) {
@@ -41,7 +41,7 @@ class HiScore extends React.Component {
     return (
       <div id="hiscore">
         <div>HI SCORES</div>
-        {scores.map((item, i) => (
+        {hiScores.map((item, i) => (
           <HiScoreEntry
             initials={item.initials}
             score={item.score}

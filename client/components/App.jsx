@@ -1,6 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable class-methods-use-this */
 import React from 'react';
+import axios from 'axios';
 // import CanvasTest from './CanvasTest.jsx';
 // import PaddleBall from './PaddleBall.jsx';
 import Paddle from './Paddle.jsx';
@@ -30,6 +31,8 @@ class App extends React.Component {
     this.handleCollision = this.handleCollision.bind(this);
     this.handleScore = this.handleScore.bind(this);
     this.CreateSound = this.CreateSound.bind(this);
+    this.getHiScores = this.getHiScores.bind(this);
+    this.postHiScore = this.postHiScore.bind(this);
 
     this.state = {
       gameStart: false,
@@ -59,11 +62,7 @@ class App extends React.Component {
       renderSpeed: 10,
       hit: false,
       score: 0,
-      hiScores: [
-        { initials: 'PAD', score: 50000 },
-        { initials: 'DLE', score: 30000 },
-        { initials: 'BAL', score: 10000 },
-      ],
+      hiScores: [],
       alphaNumerics: [
         ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 1, 2, 3, 4, 5, 6, 7, 8, 9, 0,
       ],
@@ -76,6 +75,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    this.getHiScores();
     const {
       theme, fail, paddleHit, brickHits, wallHit,
     } = this.state;
@@ -154,6 +154,44 @@ class App extends React.Component {
     this.setState({
       score: this.currentScore,
     });
+  }
+
+  // API CALLS
+  getHiScores() {
+    axios({
+      method: 'GET',
+      url: '/api/hiscores',
+    })
+      .then((data) => {
+        let scores = data.data;
+        const sorted = [];
+        scores = scores.sort((a, b) => b.score - a.score);
+
+        for (let i = 0; i < 3; i += 1) {
+          sorted.push(scores[i]);
+        }
+        this.setState({
+          hiScores: sorted,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
+  postHiScore(initials, newScore) {
+    axios({
+      method: 'POST',
+      url: '/api/hiscores',
+      data: {
+        initials,
+        score: newScore,
+      },
+    })
+      .then(() => {
+        this.currentScore = 0;
+        this.getHiScores();
+      })
   }
 
   // RENDERING AND BOUNDRIES
@@ -397,9 +435,9 @@ class App extends React.Component {
       ballMove, initialBoard, selectedLetter, letter1, letter2, letter3, alphaNumerics,
     } = this.state;
 
-    let { hiScores } = this.state;
+    // let { hiScores } = this.state;
 
-    console.log(e.keyCode);
+    // console.log(e.keyCode);
 
     if (!initialBoard) {
       if (e.keyCode === 39) {
@@ -470,20 +508,25 @@ class App extends React.Component {
       }
 
       if (e.keyCode === 13) {
-        const initials = `${alphaNumerics[letter1]}${alphaNumerics[letter2]}${alphaNumerics[letter3]}`;
+        const initials = `'${alphaNumerics[letter1]}${alphaNumerics[letter2]}${alphaNumerics[letter3]}'`;
 
-        hiScores[2] = { initials, score: this.currentScore };
-        hiScores = hiScores.sort((a, b) => b.score - a.score);
+        // console.log(typeof initials)
+
+        // hiScores[2] = { initials, score: this.currentScore };
+        // hiScores = hiScores.sort((a, b) => b.score - a.score);
+
+        this.postHiScore(initials, this.currentScore);
+        // this.currentScore = 0;
 
         this.setState({
-          hiScores,
-        });
-        this.setState({
-          hiScores,
           initialBoard: false,
-        }, () => {
-          this.currentScore = 0;
         });
+        // this.setState({
+        //   hiScores,
+        //   initialBoard: false,
+        // }, () => {
+        //   this.currentScore = 0;
+        // });
       }
     }
   }
