@@ -47,13 +47,13 @@ connection.query("INSERT INTO scores (initials, score) VALUES('PAD', 50000)");
 connection.query("INSERT INTO scores (initials, score) VALUES('DLE', 30000)");
 connection.query("INSERT INTO scores (initials, score) VALUES('BAL', 10000)");
 
-connection.query('SELECT * FROM scores', (err, rows) => {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log(rows);
-  }
-});
+// connection.query('SELECT * FROM scores', (err, rows) => {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     console.log(rows);
+//   }
+// });
 
 const getScores = (cb) => {
   connection.query('SELECT * FROM scores', (err, rows) => {
