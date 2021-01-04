@@ -9,9 +9,6 @@ const mysql = require('mysql');
 //   database: 'PaddleBall',
 // });
 
-/**
- * JAWSDB_MARIA_URL=mysql://e3ayt0r0cxnr8f5g:lh3qezz9c1fgqkse@u3r5w4ayhxzdrw87.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/qeg7qhhs7i0wk9va
- */
 const connection = mysql.createConnection(process.env.JAWSDB_MARIA_URL);
 // console.log('SUCCESS!')
 
