@@ -1,23 +1,7 @@
 require('dotenv').config();
 const mysql = require('mysql');
-// const mariadb = require('mariadb');
-
-// const pool = mysql.createConnection({
-//   host: 'localhost' || process.env.HOST,
-//   user: 'root' || process.env.USER,
-//   password: '' || process.env.PASS,
-//   database: 'PaddleBall',
-// });
 
 const connection = mysql.createConnection(process.env.JAWSDB_MARIA_URL);
-// console.log('SUCCESS!')
-
-// const connection = mysql.createConnection({
-//   host: process.env.DB_HOST,
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PASS,
-//   database: process.env.DB_DATABASE,
-// });
 
 connection.connect((err) => {
   if (err) {
@@ -46,14 +30,6 @@ connection.query('CREATE TABLE IF NOT EXISTS scores (id INT NOT NULL AUTO_INCREM
 connection.query("INSERT INTO scores (initials, score) VALUES('PAD', 50000)");
 connection.query("INSERT INTO scores (initials, score) VALUES('DLE', 30000)");
 connection.query("INSERT INTO scores (initials, score) VALUES('BAL', 10000)");
-
-// connection.query('SELECT * FROM scores', (err, rows) => {
-//   if (err) {
-//     console.error(err);
-//   } else {
-//     console.log(rows);
-//   }
-// });
 
 const getScores = (cb) => {
   connection.query('SELECT * FROM scores', (err, rows) => {
