@@ -11,13 +11,13 @@ connection.connect((err) => {
   }
 });
 
-// connection.query('DROP TABLE IF EXISTS scores;', (err, result) => {
-//   if (err) {
-//     console.error(err);
-//   } else {
-//     console.log(result);
-//   }
-// });
+connection.query('DROP TABLE IF EXISTS scores;', (err, result) => {
+  if (err) {
+    console.error(err);
+  } else {
+    console.log(result);
+  }
+});
 
 connection.query('CREATE TABLE IF NOT EXISTS scores (id INT NOT NULL AUTO_INCREMENT, initials VARCHAR(5), score INT, PRIMARY KEY (id));', (err, result) => {
   if (err) {
@@ -27,9 +27,9 @@ connection.query('CREATE TABLE IF NOT EXISTS scores (id INT NOT NULL AUTO_INCREM
   }
 });
 
-// connection.query("INSERT INTO scores (initials, score) VALUES('PAD', 50000)");
-// connection.query("INSERT INTO scores (initials, score) VALUES('DLE', 30000)");
-// connection.query("INSERT INTO scores (initials, score) VALUES('BAL', 10000)");
+connection.query("INSERT INTO scores (initials, score) VALUES('PAD', 50000)");
+connection.query("INSERT INTO scores (initials, score) VALUES('DLE', 30000)");
+connection.query("INSERT INTO scores (initials, score) VALUES('BAL', 10000)");
 
 const getScores = (cb) => {
   connection.query('SELECT * FROM scores', (err, rows) => {
