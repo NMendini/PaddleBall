@@ -11,13 +11,13 @@ connection.connect((err) => {
   }
 });
 
-connection.query('DROP TABLE IF EXISTS scores;', (err, result) => {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log(result);
-  }
-});
+// connection.query('DROP TABLE IF EXISTS scores;', (err, result) => {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     console.log(result);
+//   }
+// });
 
 connection.query('CREATE TABLE IF NOT EXISTS scores (id INT NOT NULL AUTO_INCREMENT, initials VARCHAR(5), score INT, PRIMARY KEY (id));', (err, result) => {
   if (err) {
