@@ -31,6 +31,8 @@ connection.connect((err) => {
 // connection.query("INSERT INTO scores (initials, score) VALUES('DLE', 30000)");
 // connection.query("INSERT INTO scores (initials, score) VALUES('BAL', 10000)");
 
+connection.query('ALTER TABLE scores MODIFY score VARCHAR(20)');
+
 const getScores = (cb) => {
   connection.query('SELECT * FROM scores', (err, rows) => {
     if (err) {
